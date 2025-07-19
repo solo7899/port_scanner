@@ -12,7 +12,17 @@ def parse_args():
 
     return parser.parse_args()
 
+class Scanner():
+    def __init__(self, target, ports, banner, verbose):
+        self.target = target
+        self.ports = ports
+        self.banner = banner
+        self.verbose = verbose
+    
+    def parse_ports(self):
+        pass
 
 if __name__ == '__main__':
     args = parse_args()
-    print(args)
+
+    scanner = Scanner(args.target, args.ports, args.banner, args.verbose)
