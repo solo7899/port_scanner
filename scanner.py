@@ -1,5 +1,7 @@
 import argparse
+import asyncio
 import socket
+import threading
 
 def parse_args():
     parser = argparse.ArgumentParser(prog='scanner',
@@ -70,14 +72,30 @@ class Scanner():
         self.ports = sorted(set(self.ports))
         return True
     
-    def scan_ports(self):
-        for port in self.ports:
-            sock, is_open = self.is_port_open(port)
-            if is_open:
+    def scan_operations(self, port, status_list):
+        sock, is_open = self.is_port_open(port)
+        banner = None
+        if is_open:
+            if self.verbose:
                 print(f"Port {port} is open")
-                if self.get_banner:
-                    self.get_banner_func(sock)
-            self.close_sock(sock)
+            if self.get_banner:
+                banner = self.get_banner_func(sock)
+        if is_open:
+            status_list.append((f"port {port} is open", banner))
+                
+        self.close_sock(sock)
+    def scan_ports(self):
+        status_list = []
+        threads = []
+        for port in self.ports:
+            thread = threading.Thread(target=self.scan_operations, args=(port, status_list), daemon=True)
+            threads.append(thread)
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+        
+        return status_list
 
     def get_banner_func(self, sock:socket.socket):
         try:
@@ -85,14 +103,19 @@ class Scanner():
         except socket.timeout:
             banner = None
         if banner:
-            print(f"[Banner]\n{banner.decode(errors='ignore').strip()}\n")
-            return
+            if self.verbose:
+                print(f"[Banner]\n{banner.decode(errors='ignore').strip()}\n")
+            return f"[Banner]\n{banner.decode(errors='ignore').strip()}\n"
         sock.sendall(bytes(self.banner, 'utf-8'))
         try:
             banner = sock.recv(1024)
-            print(f"[Banner] {banner.decode(errors='ignore').strip()}")
+            if self.verbose:
+                print(f"[Banner] {banner.decode(errors='ignore').strip()}")
+            return f"[Banner] {banner.decode(errors='ignore').strip()}"
         except socket.error:
-            print(">>> no Banner recieved")
+            if self.verbose:
+                print(">>> no Banner recieved")
+            return ">>> no Banner recieved"
         print()
 
     def is_port_open(self, port):
@@ -114,7 +137,12 @@ def main():
     if not scanner.parse_ports():
         exit(1)
 
-    scanner.scan_ports()
+    status_list = scanner.scan_ports()
+
+    for is_open, banner in status_list:
+        print(is_open)
+        if banner:
+            print(banner)
 
 if __name__ == '__main__':
     try:
