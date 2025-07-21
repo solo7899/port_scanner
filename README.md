@@ -1,48 +1,48 @@
 # Port Scanner
 
-This is a simple Python-based port scanner tool. It allows you to scan a target IP address for open ports and optionally retrieve service banners from those ports.
+A simple Python port scanner that scans for open ports on a target host.  
+**This project is currently unfinished and under development.**
 
 ## Features
 
-- Scan a target IP for open ports
-- Specify ports as a list (e.g., `22,80,443`) or a range (e.g., `1-1000`)
-- Optionally retrieve banners from open ports
-- Customizable banner request data
-- Verbose output mode
+- Scan single ports, comma-separated lists, or port ranges (e.g. `22,80,443` or `1-1000`)
+- Multi-threaded scanning for faster results
+- Optional banner grabbing for open ports
+- Verbose output option
 
 ## Usage
 
-Run the scanner from the command line:
-
-```powershell
-python scanner.py -t <target_ip> -p <ports> [-g] [-b <banner>] [-v]
+```sh
+python scanner.py -t <target_ip> -p <ports> [options]
 ```
 
 ### Arguments
 
-- `-t`, `--target` : Target IP address (required)
-- `-p`, `--ports` : Ports to scan (e.g. `22,80,443` or `1-1000`) (required)
-- `-g`, `--get-banner` : Get banner for open ports (optional)
-- `-b`, `--banner` : Data to send in banner request (default: `hello\r\n`) (optional)
-- `-v`, `--verbose` : Verbose mode (optional)
+- `-t`, `--target` (required): Target IP address (e.g. `127.0.0.1`)
+- `-p`, `--ports` (required): Ports to scan (e.g. `22,80,443` or `1-1000`)
+- `-g`, `--get-banner`: Try to grab banners from open ports
+- `-b`, `--banner`: Data to send for banner grabbing (default: `hello\r\n`)
+- `-v`, `--verbose`: Enable verbose output
 
 ### Example
 
-```powershell
-python scanner.py -t 127.0.0.1 -p 22,80,443 -g -b "Hello\r\n" -v
+```sh
+python scanner.py -t 127.0.0.1 -p 22,80,443 -g -v
 ```
 
-## Requirements
+## How it works
 
-- Python 3.x
-
-## Status
+- Uses Python threads for concurrent port scanning.
+- Uses blocking sockets (not asyncio).
+- Results are collected in a thread-safe queue and printed after scanning.
 
 ## Notes
 
-- This project uses threads for concurrency, not asyncio or async/await.
-- The project is not finished yet and may be missing features or have bugs.
+- **This project is not finished yet.**
+- Only supports TCP port scanning.
+- No async/await or asyncio is used; all concurrency is via threads.
+- Error handling and input validation are basic and may be improved in future versions.
 
 ## License
 
-This project is provided as-is for educational purposes.
+MIT License (add your license here if needed)
