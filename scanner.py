@@ -1,7 +1,6 @@
 import argparse
 import socket
 
-
 def parse_args():
     parser = argparse.ArgumentParser(prog='scanner',
         description='Scans for open ports on a host',)
@@ -70,9 +69,28 @@ class Scanner():
     
     def scan_ports(self):
         for port in self.ports:
-            is_opon = self.is_port_open(port)
-            if is_opon:
+            sock, is_open = self.is_port_open(port)
+            if is_open:
                 print(f"Port {port} is open")
+                if self.banner:
+                    self.get_banner(sock)
+            self.close_sock(sock)
+
+    def get_banner(self, sock:socket.socket):
+        try:
+            banner = sock.recv(1024)
+        except socket.timeout:
+            banner = None
+        if banner:
+            print(f"[Banner] {banner.decode(errors='ignore').strip()}\n")
+            return
+        sock.sendall(b"Hello\r\n")
+        try:
+            banner = sock.recv(1024)
+            print(f"[Banner] {banner.decode(errors='ignore').strip()}")
+        except socket.error:
+            print(">>> no Banner recieved")
+        print()
 
     def is_port_open(self, port):
         sock = socket.socket()
@@ -80,8 +98,11 @@ class Scanner():
 
         conn = sock.connect_ex((self.target, port))
         if conn != 0:
-            return False 
-        return True 
+            return sock, False 
+        return sock, True 
+
+    def close_sock(self, sock):
+        sock.close()
 
 if __name__ == '__main__':
     args = parse_args()
