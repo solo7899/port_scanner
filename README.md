@@ -42,7 +42,3 @@ python scanner.py -t 127.0.0.1 -p 22,80,443 -g -v
 - Only supports TCP port scanning.
 - No async/await or asyncio is used; all concurrency is via threads.
 - Error handling and input validation are basic and may be improved in future versions.
-
-## License
-
-MIT License (add your license here if needed)
