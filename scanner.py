@@ -80,7 +80,7 @@ class Scanner():
             if self.get_banner:
                 banner = self.get_banner_func(sock)
         if is_open:
-            status_list.append((f"port {port} is open", banner))
+            status_list.append((port, banner))
                 
         self.close_sock(sock)
     def scan_ports(self):
@@ -115,7 +115,6 @@ class Scanner():
             if self.verbose:
                 print(">>> no Banner recieved")
             return ">>> no Banner recieved"
-        print()
 
     def is_port_open(self, port):
         sock = socket.socket()
@@ -138,10 +137,11 @@ def main():
 
     status_list = scanner.scan_ports()
 
-    for is_open, banner in status_list:
-        print(is_open)
+    for port, banner in sorted(status_list, key=lambda x: x[0]):
+        print(f"Port {port} is open")
         if banner:
             print(banner)
+        print()
 
 if __name__ == '__main__':
     try:
