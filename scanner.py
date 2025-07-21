@@ -1,4 +1,5 @@
 import argparse
+import queue
 import socket
 import threading
 
@@ -80,11 +81,11 @@ class Scanner():
             if self.get_banner:
                 banner = self.get_banner_func(sock)
         if is_open:
-            status_list.append((port, banner))
+            status_list.put((port, banner))
                 
         self.close_sock(sock)
     def scan_ports(self):
-        status_list = []
+        status_list = queue.Queue()
         threads = []
         for port in self.ports:
             thread = threading.Thread(target=self.scan_operations, args=(port, status_list), daemon=True)
@@ -137,7 +138,7 @@ def main():
 
     status_list = scanner.scan_ports()
 
-    for port, banner in sorted(status_list, key=lambda x: x[0]):
+    for port, banner in sorted(list(status_list.queue), key=lambda x: x[0]):
         print(f"Port {port} is open")
         if banner:
             print(banner)
