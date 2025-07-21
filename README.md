@@ -38,7 +38,10 @@ python scanner.py -t 127.0.0.1 -p 22,80,443 -g -b "Hello\r\n" -v
 
 ## Status
 
-**This project is not finished yet.**
+## Notes
+
+- This project uses threads for concurrency, not asyncio or async/await.
+- The project is not finished yet and may be missing features or have bugs.
 
 ## License
 
