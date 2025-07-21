@@ -1,4 +1,5 @@
 import argparse
+import socket
 
 
 def parse_args():
@@ -66,6 +67,21 @@ class Scanner():
             
         self.ports = sorted(set(self.ports))
         return True
+    
+    def scan_ports(self):
+        for port in self.ports:
+            is_opon = self.is_port_open(port)
+            if is_opon:
+                print(f"Port {port} is open")
+
+    def is_port_open(self, port):
+        sock = socket.socket()
+        sock.settimeout(5)
+
+        conn = sock.connect_ex((self.target, port))
+        if conn != 0:
+            return False 
+        return True 
 
 if __name__ == '__main__':
     args = parse_args()
@@ -74,4 +90,4 @@ if __name__ == '__main__':
     if not scanner.parse_ports():
         exit(1)
 
-print(scanner.ports)
+    scanner.scan_ports()
